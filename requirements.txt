@@ -1,3 +1,5 @@
 datasets
 tqdm
 kagglehub
+
+# Unsloth training: pip install unsloth trl
