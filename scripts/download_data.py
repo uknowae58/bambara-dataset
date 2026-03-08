@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
 """
-Download and prepare Bambara datasets from HuggingFace
+Download and prepare Bambara datasets from HuggingFace and Kaggle
 """
 from datasets import load_dataset
+import kagglehub
 import os
+import shutil
 
 OUTPUT_DIR = "./raw"
+WORKSPACE_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 def download_bambara_lm_qa():
     """Download bambara-lm-qa dataset"""
@@ -43,6 +46,24 @@ def download_bambara_mt():
         print(f"Error: {e}")
         return 0
 
+def download_bambara_french_kaggle():
+    """Download bambara-french-parallel-dataset from Kaggle and copy to workspace"""
+    print("Downloading ozaresearch1/bambara-french-parallel-dataset from Kaggle...")
+    try:
+        path = kagglehub.dataset_download("ozaresearch1/bambara-french-parallel-dataset")
+        print(f"Path to dataset files: {path}")
+        # Copy to workspace
+        dest = os.path.join(WORKSPACE_ROOT, "bambara-french-parallel-dataset")
+        if os.path.exists(dest):
+            shutil.rmtree(dest)
+        shutil.copytree(path, dest)
+        print(f"Copied to {dest}")
+        return 1
+    except Exception as e:
+        print(f"Error: {e}")
+        print("Ensure kagglehub is installed (pip install kagglehub) and Kaggle API is configured.")
+        return 0
+
 def main():
     os.makedirs(OUTPUT_DIR, exist_ok=True)
     
@@ -50,6 +71,7 @@ def main():
     total += download_bambara_lm_qa()
     total += download_bambara_texts()
     total += download_bambara_mt()
+    download_bambara_french_kaggle()
     
     print(f"\n=== Total: {total} examples downloaded ===")
 
